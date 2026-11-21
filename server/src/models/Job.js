@@ -1,4 +1,36 @@
 // [MIGRATED TO PRISMA & POSTGRESQL]
-// This Mongoose schema has been replaced with Prisma ORM.
-// See server/prisma/schema.prisma for the active schema definition.
-module.exports = {};
+// Active database model defined in server/prisma/schema.prisma
+
+class Job {
+  constructor(data = {}) {
+    Object.assign(this, data);
+  }
+}
+
+Job.schema = {
+  paths: {
+    title: true,
+    type: true,
+    description: true,
+    skills: true,
+    salary: true,
+    salaryMin: true,
+    salaryMax: true,
+    currency: true,
+    salaryPeriod: true,
+    hideSalary: true,
+    isNegotiable: true,
+    isPaid: true,
+    stipendMin: true,
+    stipendMax: true,
+    featured: true,
+    viewsCount: true,
+    duration: true,
+    workMode: true,
+    location: true,
+    deadline: true,
+    status: true
+  }
+};
+
+module.exports = Job;

@@ -220,10 +220,10 @@ class JobService {
     const formattedRecentApplications = recentApplications.map((a) => {
       const app = { ...a, _id: a.id };
       if (app.candidate) {
-        app.candidateId = { email: app.candidate.email };
+        app.candidateId = { _id: a.candidateId, id: a.candidateId, email: app.candidate.email };
       }
       if (app.job) {
-        app.jobId = { title: app.job.title, type: app.job.type };
+        app.jobId = { _id: a.jobId, id: a.jobId, title: app.job.title, type: app.job.type };
       }
       return app;
     });

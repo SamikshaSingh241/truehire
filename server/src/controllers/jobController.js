@@ -3,7 +3,8 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 const createJob = async (req, res, next) => {
   try {
-    const job = await jobService.createJob(req.user._id, req.body);
+    const userId = req.user.id || req.user._id;
+    const job = await jobService.createJob(userId, req.body);
     return successResponse(res, 'Job created successfully', job, 201);
   } catch (error) {
     return errorResponse(res, error.message, 400);
@@ -12,7 +13,8 @@ const createJob = async (req, res, next) => {
 
 const getRecruiterJobs = async (req, res, next) => {
   try {
-    const data = await jobService.getRecruiterJobs(req.user._id);
+    const userId = req.user.id || req.user._id;
+    const data = await jobService.getRecruiterJobs(userId);
     return successResponse(res, 'Recruiter jobs retrieved', data);
   } catch (error) {
     return errorResponse(res, error.message, 400);
@@ -21,8 +23,9 @@ const getRecruiterJobs = async (req, res, next) => {
 
 const updateJob = async (req, res, next) => {
   try {
+    const userId = req.user.id || req.user._id;
     const { id } = req.params;
-    const job = await jobService.updateJob(req.user._id, id, req.body);
+    const job = await jobService.updateJob(userId, id, req.body);
     return successResponse(res, 'Job updated successfully', job);
   } catch (error) {
     return errorResponse(res, error.message, 400);
@@ -31,8 +34,9 @@ const updateJob = async (req, res, next) => {
 
 const deleteJob = async (req, res, next) => {
   try {
+    const userId = req.user.id || req.user._id;
     const { id } = req.params;
-    const result = await jobService.deleteJob(req.user._id, id);
+    const result = await jobService.deleteJob(userId, id);
     return successResponse(res, 'Job deleted successfully', result);
   } catch (error) {
     return errorResponse(res, error.message, 400);
@@ -58,7 +62,7 @@ const getPublicJobs = async (req, res, next) => {
 
     return successResponse(res, 'Verified public jobs retrieved successfully', data);
   } catch (error) {
-    return errorResponse(res, error.message, 400);
+    return next(error);
   }
 };
 

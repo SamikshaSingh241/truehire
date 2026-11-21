@@ -282,12 +282,12 @@ export const Hero3DScene = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     // RENDER LOOP
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Smooth mouse lerp
       currentMouseX += (targetMouseX - currentMouseX) * 0.05;

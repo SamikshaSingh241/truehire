@@ -19,10 +19,9 @@ jobs:
           echo "Checking server configuration requirements..."
           test -f server/.env.example || exit 1
           grep -q "PORT=" server/.env.example || exit 1
-          grep -q "MONGODB_URI=" server/.env.example || exit 1
           grep -q "DATABASE_URL=" server/.env.example || exit 1
           grep -q "JWT_SECRET=" server/.env.example || exit 1
-          grep -q "SMTP_HOST=" server/.env.example || exit 1
+          grep -q "EMAIL_HOST=" server/.env.example || exit 1
           grep -q "RAZORPAY_KEY_ID=" server/.env.example || exit 1
           echo "All required environment variable definitions present."
 

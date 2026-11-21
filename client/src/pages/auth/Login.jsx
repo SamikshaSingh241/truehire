@@ -78,6 +78,21 @@ export const Login = () => {
     }
   }, [selectedRole, setSearchParams]);
 
+  const fillDemoCredentials = (role) => {
+    setError('');
+    setSelectedRole(role);
+    if (role === 'admin') {
+      setEmail('admin@truehire.io');
+      setPassword('admin@123');
+    } else if (role === 'recruiter') {
+      setEmail('recruiter@linear.app');
+      setPassword('recruiter@123');
+    } else if (role === 'candidate') {
+      setEmail('alex.dev@stanford.edu');
+      setPassword('candidate@123');
+    }
+  };
+
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
     setError('');
@@ -126,7 +141,8 @@ export const Login = () => {
         setOtpChallenge({
           challengeId: res.challengeId,
           email: res.email,
-          role: res.role
+          role: res.role,
+          demoOtp: res.demoOtp || res.data?.demoOtp || '123456'
         });
         return;
       }
@@ -336,8 +352,36 @@ export const Login = () => {
             </div>
           </div>
 
+          {/* Quick Demo Access Bar */}
+          <div className="mt-8 bg-[#FFFFFF] rounded-2xl border border-[#E9E6DF] p-4 text-center shadow-subtle">
+            <p className="text-xs font-bold text-[#202124] mb-2">⚡ 1-Click Demo Accounts</p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => fillDemoCredentials('admin')}
+                className="px-3 py-1.5 rounded-lg bg-[#FAF9F6] border border-[#E9E6DF] hover:border-[#C6A15B] text-[11px] font-semibold text-[#202124] transition-colors cursor-pointer"
+              >
+                👑 Admin Demo <span className="text-[#666666] font-normal">(admin@truehire.io)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoCredentials('recruiter')}
+                className="px-3 py-1.5 rounded-lg bg-[#FAF9F6] border border-[#E9E6DF] hover:border-[#C6A15B] text-[11px] font-semibold text-[#202124] transition-colors cursor-pointer"
+              >
+                🏢 Recruiter Demo <span className="text-[#666666] font-normal">(recruiter@linear.app)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoCredentials('candidate')}
+                className="px-3 py-1.5 rounded-lg bg-[#FAF9F6] border border-[#E9E6DF] hover:border-[#C6A15B] text-[11px] font-semibold text-[#202124] transition-colors cursor-pointer"
+              >
+                🎓 Candidate Demo <span className="text-[#666666] font-normal">(alex.dev@stanford.edu)</span>
+              </button>
+            </div>
+          </div>
+
           {/* Quick Register Links */}
-          <div className="mt-8 text-center text-xs text-[#666666] space-y-1">
+          <div className="mt-4 text-center text-xs text-[#666666] space-y-1">
             <p>
               Need a candidate account?{' '}
               <Link to="/register/candidate" className="text-[#C6A15B] hover:text-[#A98443] font-bold underline">
@@ -399,6 +443,7 @@ export const Login = () => {
                 challengeId={otpChallenge.challengeId}
                 email={otpChallenge.email}
                 expectedRole={selectedRole}
+                demoOtp={otpChallenge.demoOtp}
                 onSuccess={handleLoginSuccess}
                 onBack={() => {
                   setOtpChallenge(null);
@@ -513,6 +558,16 @@ export const Login = () => {
                           <ArrowRight className="w-3.5 h-3.5" />
                         </>
                       )}
+                    </button>
+                  </div>
+
+                  <div className="pt-1 text-center">
+                    <button
+                      type="button"
+                      onClick={() => fillDemoCredentials(selectedRole)}
+                      className="text-[11px] text-[#A98443] hover:text-[#202124] underline transition-colors cursor-pointer"
+                    >
+                      ⚡ Auto-fill {selectedRole === 'admin' ? 'Admin' : selectedRole === 'recruiter' ? 'Recruiter' : 'Candidate'} demo credentials
                     </button>
                   </div>
                 </form>
@@ -640,6 +695,16 @@ export const Login = () => {
                     placeholder="123456"
                     className="w-full px-3 py-2 rounded-xl bg-[#FAF9F6] border border-[#E9E6DF] text-xs text-[#202124] font-mono tracking-widest text-center focus:bg-[#FFFFFF] focus:outline-none focus:border-[#C6A15B]"
                   />
+                  <div className="pt-1 flex items-center justify-between text-[11px]">
+                    <span className="text-[#666666]">Universal Demo Code: 123456</span>
+                    <button
+                      type="button"
+                      onClick={() => setResetCode('123456')}
+                      className="text-[#C6A15B] hover:text-[#A98443] font-bold underline cursor-pointer"
+                    >
+                      ⚡ Auto-fill Code (123456)
+                    </button>
+                  </div>
                 </div>
 
                 <div>

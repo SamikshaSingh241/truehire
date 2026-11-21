@@ -12,5 +12,6 @@ router.use(requireRole('recruiter'));
 router.get('/company', recruiterController.getCompany);
 router.put('/company', companyValidation, validate, recruiterController.updateCompany);
 router.get('/dashboard', recruiterController.getDashboard);
+router.patch('/applications/:id/status', recruiterController.updateApplicationStatus);
 
 module.exports = router;

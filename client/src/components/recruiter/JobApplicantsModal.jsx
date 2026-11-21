@@ -32,7 +32,7 @@ export const JobApplicantsModal = ({ isOpen, onClose, job }) => {
   const handleUpdateStatus = async (appId, newStatus) => {
     setActionLoadingId(appId);
     try {
-      await api.patch(`/candidate/applications/${appId}/status`, { status: newStatus });
+      await api.patch(`/recruiter/applications/${appId}/status`, { status: newStatus });
       setApplications((prev) =>
         prev.map((a) => (a._id === appId ? { ...a, status: newStatus } : a))
       );

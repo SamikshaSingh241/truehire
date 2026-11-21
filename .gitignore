@@ -11,9 +11,11 @@ build/
 # Environment variables (Sensitive secrets)
 .env
 server/.env
+backend/.env
 *.env
 !.env.example
 !server/.env.example
+!backend/.env.example
 
 # Logs
 logs/

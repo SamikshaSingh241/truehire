@@ -7,6 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
+        // TrueHire Brand Identity Palette
+        brand: {
+          purple: '#6C3BFF',
+          yellow: '#F5C542',
+          navy: '#17172B',
+          coral: '#FF6B6B',
+        },
+
         // TrueHire Premium Charcoal, Warm White & Gold Palette
         charcoal: {
           DEFAULT: '#202124',

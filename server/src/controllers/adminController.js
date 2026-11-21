@@ -15,7 +15,8 @@ const verifyCompany = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status, adminNote } = req.body;
-    const company = await adminService.verifyCompany(req.user._id, id, { status, adminNote });
+    const userId = req.user.id || req.user._id;
+    const company = await adminService.verifyCompany(userId, id, { status, adminNote });
     return successResponse(
       res,
       `Company status successfully updated to '${status}'`,

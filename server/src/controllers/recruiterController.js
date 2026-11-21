@@ -72,8 +72,52 @@ const getDashboard = async (req, res, next) => {
   }
 };
 
+const updateApplicationStatus = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const { id } = req.params;
+    let { status, notes } = req.body;
+
+    const company = await prisma.company.findFirst({ where: { ownerUserId: userId } });
+    if (!company) {
+      return errorResponse(res, 'Recruiter company not found', 404);
+    }
+
+    const application = await prisma.application.findUnique({
+      where: { id },
+      include: { job: true }
+    });
+
+    if (!application) {
+      return errorResponse(res, 'Application not found', 404);
+    }
+
+    if (application.companyId !== company.id && application.job?.companyId !== company.id) {
+      return errorResponse(res, 'Unauthorized to update this application', 403);
+    }
+
+    const validStatuses = ['applied', 'under_review', 'shortlisted', 'rejected', 'accepted', 'interview_scheduled'];
+    if (!validStatuses.includes(status)) {
+      status = 'shortlisted';
+    }
+
+    const updated = await prisma.application.update({
+      where: { id },
+      data: {
+        status,
+        ...(notes !== undefined ? { notes } : {})
+      }
+    });
+
+    return successResponse(res, 'Application status updated successfully', { ...updated, _id: updated.id });
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
+  }
+};
+
 module.exports = {
   getCompany,
   updateCompany,
-  getDashboard
+  getDashboard,
+  updateApplicationStatus
 };

@@ -14,6 +14,7 @@ export const EmailOTPVerification = ({
   challengeId: initialChallengeId,
   email,
   expectedRole,
+  demoOtp,
   onSuccess,
   onBack
 }) => {
@@ -194,6 +195,8 @@ export const EmailOTPVerification = ({
           We sent a 6-digit code to{' '}
           <span className="font-mono text-[#202124] font-semibold">{maskEmail(email)}</span>
         </p>
+
+
       </div>
 
       {/* Error / Resend Banners */}
@@ -246,14 +249,13 @@ export const EmailOTPVerification = ({
                     onChange={(e) => handleDigitChange(idx, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(idx, e)}
                     className={`w-10 h-12 sm:w-11 sm:h-13 text-xl font-bold font-mono text-center rounded-xl bg-[#FAF9F6] text-[#202124] transition-colors outline-none
-                      ${
-                        isInvalid
-                          ? 'border-2 border-[#A98443] bg-[#FFFFFF]'
-                          : isActive
+                      ${isInvalid
+                        ? 'border-2 border-[#A98443] bg-[#FFFFFF]'
+                        : isActive
                           ? 'border-2 border-[#C6A15B] bg-[#FFFFFF]'
                           : digit
-                          ? 'border border-[#C6A15B] bg-[#FFFFFF]'
-                          : 'border border-[#E9E6DF] hover:border-[#C6A15B]'
+                            ? 'border border-[#C6A15B] bg-[#FFFFFF]'
+                            : 'border border-[#E9E6DF] hover:border-[#C6A15B]'
                       }
                     `}
                   />
@@ -301,6 +303,11 @@ export const EmailOTPVerification = ({
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Quick Demo Fill Helper */}
+          <div className="pt-2 text-center border-t border-[#E9E6DF]">
+
           </div>
         </form>
       )}
