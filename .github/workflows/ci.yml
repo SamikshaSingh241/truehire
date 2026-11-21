@@ -14,15 +14,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Validate Server .env.example
+      - name: Validate .env.example
         run: |
-          echo "Checking server configuration requirements..."
-          test -f server/.env.example || exit 1
-          grep -q "PORT=" server/.env.example || exit 1
-          grep -q "DATABASE_URL=" server/.env.example || exit 1
-          grep -q "JWT_SECRET=" server/.env.example || exit 1
-          grep -q "EMAIL_HOST=" server/.env.example || exit 1
-          grep -q "RAZORPAY_KEY_ID=" server/.env.example || exit 1
+          echo "Checking configuration requirements..."
+          test -f .env.example || exit 1
+          grep -q "PORT=" .env.example || exit 1
+          grep -q "DATABASE_URL=" .env.example || exit 1
+          grep -q "JWT_SECRET=" .env.example || exit 1
+          grep -q "EMAIL_HOST=" .env.example || exit 1
+          grep -q "RAZORPAY_KEY_ID=" .env.example || exit 1
           echo "All required environment variable definitions present."
 
   build-frontend:
