@@ -1,0 +1,354 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────
+
+enum Role {
+  candidate
+  recruiter
+  admin
+}
+
+enum VerificationStatus {
+  pending
+  valid
+  invalid
+}
+
+enum JobType {
+  job
+  internship
+}
+
+enum SalaryPeriod {
+  hourly
+  monthly
+  yearly
+}
+
+enum WorkMode {
+  remote
+  hybrid
+  onsite
+}
+
+enum JobStatus {
+  draft
+  published
+  closed
+}
+
+enum ApplicationStatus {
+  applied
+  under_review
+  shortlisted
+  rejected
+  accepted
+}
+
+enum BillingType {
+  per_job
+  monthly
+  yearly
+}
+
+enum SubscriptionStatus {
+  pending
+  active
+  expired
+  cancelled
+  suspended
+}
+
+enum PaymentStatus {
+  pending
+  authorized
+  captured
+  failed
+  refunded
+  partially_refunded
+}
+
+// ─── Models ──────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(candidate)
+  isActive     Boolean  @default(true)
+  isBanned     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  candidateProfile  CandidateProfile?
+  ownedCompanies    Company[]         @relation("CompanyOwner")
+  reviewedCompanies Company[]         @relation("CompanyReviewer")
+  createdJobs       Job[]
+  applications      Application[]
+  subscriptions     Subscription[]
+  payments          Payment[]
+  loginOtps         LoginOTP[]
+
+  @@map("users")
+}
+
+model CandidateProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name     String?
+  headline String?
+
+  education  Json @default("[]")
+  experience Json @default("[]")
+  skills     String[] @default([])
+
+  preferences Json?
+  links       Json?
+
+  resumeUrl          String?
+  resumeOriginalName String?
+  resumeSize         Int?
+  resumeMimeType     String?
+
+  savedJobs SavedJob[]
+
+  profileComplete Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("candidate_profiles")
+}
+
+model SavedJob {
+  id                 String           @id @default(cuid())
+  candidateProfileId String
+  candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
+  jobId              String
+  job                Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  savedAt            DateTime         @default(now())
+
+  @@unique([candidateProfileId, jobId])
+  @@map("saved_jobs")
+}
+
+model Company {
+  id          String @id @default(cuid())
+  ownerUserId String
+  owner       User   @relation("CompanyOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+
+  name        String
+  website     String?
+  industry    String?  @default("Technology")
+  size        String?  @default("1-10 employees")
+  location    String?  @default("San Francisco, CA")
+  description String?
+  logoUrl     String?
+
+  verificationStatus VerificationStatus @default(pending)
+  adminNote          String?
+
+  reviewedById String?
+  reviewedBy   User?    @relation("CompanyReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobs          Job[]
+  applications  Application[]
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@map("companies")
+}
+
+model Job {
+  id          String  @id @default(cuid())
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User    @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  title       String
+  type        JobType @default(internship)
+  description String?
+
+  skills String[] @default([])
+
+  salary       String?       @default("Not Disclosed")
+  salaryMin    Float?
+  salaryMax    Float?
+  currency     String?       @default("INR")
+  salaryPeriod SalaryPeriod? @default(yearly)
+  hideSalary   Boolean       @default(false)
+  isNegotiable Boolean       @default(false)
+
+  isPaid     Boolean @default(true)
+  stipendMin Float?
+  stipendMax Float?
+
+  featured   Boolean @default(false)
+  viewsCount Int      @default(0)
+  duration   String?
+  workMode   WorkMode @default(remote)
+  location   String?  @default("Remote")
+  deadline   DateTime?
+  status     JobStatus @default(published)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications Application[]
+  savedBy      SavedJob[]
+
+  @@map("jobs")
+}
+
+model Application {
+  id          String @id @default(cuid())
+  jobId       String
+  job         Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   User   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  status    ApplicationStatus @default(applied)
+  notes     String?
+  appliedAt DateTime          @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobId, candidateId])
+  @@map("applications")
+}
+
+model Plan {
+  id                 String      @id @default(cuid())
+  name               String
+  slug               String      @unique
+  description        String?
+  price              Float
+  currency           String      @default("INR")
+  billingType        BillingType @default(monthly)
+  durationDays       Int?        @default(30)
+  jobPostingLimit    Int?        @default(1)
+  featuredListing    Boolean     @default(false)
+  analyticsEnabled   Boolean     @default(false)
+  multipleRecruiters Boolean     @default(false)
+  features           String[]    @default([])
+  isActive           Boolean     @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id          String @id @default(cuid())
+  recruiterId String
+  recruiter   User   @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        Plan   @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  paymentId String?  @unique
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  status          SubscriptionStatus @default(active)
+  startDate       DateTime?          @default(now())
+  endDate         DateTime?
+  jobPostingLimit Int?               @default(1)
+  usedJobPostings Int                @default(0)
+  activeJobCount  Int                @default(0)
+  autoRenew       Boolean            @default(false)
+
+  features Json @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id          String  @id @default(cuid())
+  recruiterId String
+  recruiter   User    @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        Plan    @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  razorpayOrderId   String  @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  amount            Float
+  currency          String        @default("INR")
+  paymentStatus     PaymentStatus @default(pending)
+  paymentMethod     String?
+  signatureVerified Boolean       @default(false)
+  paidAt            DateTime?
+
+  refundDetails Json?
+  webhookEvents Json?
+  errorReason   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscription Subscription?
+
+  @@map("payments")
+}
+
+model LoginOTP {
+  id          String @id @default(cuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email       String
+  otpHash     String
+  challengeId String @unique
+
+  expiresAt    DateTime
+  attempts     Int       @default(0)
+  used         Boolean   @default(false)
+  verifiedAt   DateTime?
+  lastResentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("login_otps")
+}
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  eventId     String    @unique
+  event       String
+  payload     Json
+  processed   Boolean   @default(false)
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("webhook_events")
+}
